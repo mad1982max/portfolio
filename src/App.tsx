@@ -1,9 +1,9 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import AboutPage from './pages/AboutPage';
-import MeAboutPage from './pages/MeAboutPage';
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
+import HomePage from './pages/HomePage/HomePage';
+import AboutPage from './pages/AboutPage/AboutPage';
+import MeAboutPage from './pages/Admin/Admin';
 import { ROUTES } from './routes';
 
 export default function App() {

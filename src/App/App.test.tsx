@@ -1,0 +1,73 @@
+/// <reference types="@testing-library/jest-dom" />
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
+import HomePage from '../pages/HomePage/HomePage';
+import AboutPage from '../pages/AboutPage/AboutPage';
+import MeAboutPage from '../pages/Admin/Admin';
+import Header from '../components/Header/Header';
+import Footer from '../components/Footer/Footer';
+import { PORTFOLIO_CONFIG } from '../config/portfolio';
+import { ROUTES } from '../routes';
+
+function AppShell({ initialPath }: { initialPath: string }) {
+  return (
+    <MemoryRouter initialEntries={[initialPath]}>
+      <Header />
+      <Routes>
+        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={ROUTES.ABOUT} element={<AboutPage />} />
+        <Route path={ROUTES.ADMIN} element={<MeAboutPage />} />
+        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+      </Routes>
+      <Footer />
+    </MemoryRouter>
+  );
+}
+
+describe('Route /', () => {
+  it('renders HomePage content', () => {
+    render(<AppShell initialPath="/" />);
+    expect(screen.getByRole('heading', { name: PORTFOLIO_CONFIG.ownerName })).toBeInTheDocument();
+    expect(screen.getByText(PORTFOLIO_CONFIG.tagline)).toBeInTheDocument();
+  });
+});
+
+describe('Route /about', () => {
+  it('renders AboutPage content', () => {
+    render(<AppShell initialPath="/about" />);
+    expect(screen.getByRole('heading', { name: /about me/i })).toBeInTheDocument();
+    expect(screen.getByRole('list')).toBeInTheDocument();
+  });
+});
+
+describe('Route /admin', () => {
+  it('renders MeAboutPage content', () => {
+    render(<AppShell initialPath="/admin" />);
+    expect(screen.getByRole('heading', { name: /control panel/i })).toBeInTheDocument();
+    expect(screen.getByText(/feature management will be added later/i)).toBeInTheDocument();
+  });
+});
+
+describe('Unknown route redirect', () => {
+  it('redirects /unknown to HomePage', () => {
+    render(<AppShell initialPath="/unknown" />);
+    expect(screen.getByRole('heading', { name: PORTFOLIO_CONFIG.ownerName })).toBeInTheDocument();
+  });
+
+  it('redirects /some/deep/path to HomePage', () => {
+    render(<AppShell initialPath="/some/deep/path" />);
+    expect(screen.getByRole('heading', { name: PORTFOLIO_CONFIG.ownerName })).toBeInTheDocument();
+  });
+});
+
+describe('Header and Footer on all routes', () => {
+  const routes = [ROUTES.HOME, ROUTES.ABOUT, ROUTES.ADMIN];
+
+  routes.forEach((route) => {
+    it(`renders Header and Footer on ${route}`, () => {
+      render(<AppShell initialPath={route} />);
+      expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument();
+      expect(screen.getByRole('contentinfo')).toBeInTheDocument();
+    });
+  });
+});

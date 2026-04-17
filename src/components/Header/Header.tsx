@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { ROUTES } from '../routes';
+import { ROUTES } from '../../routes';
 
 const linkClass = ({ isActive }: { isActive: boolean }) => (isActive ? 'font-bold underline' : '');
 

@@ -1,4 +1,4 @@
-import { PORTFOLIO_CONFIG } from '../config/portfolio';
+import { PORTFOLIO_CONFIG } from '../../config/portfolio';
 
 export default function HomePage() {
   return (

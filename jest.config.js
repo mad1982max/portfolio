@@ -5,15 +5,11 @@ export default {
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             useESM: false,
-            tsconfig: {
-                jsx: 'react-jsx',
-                esModuleInterop: true,
-                module: 'CommonJS',
-            },
+            tsconfig: './tsconfig.test.json',
         }],
     },
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-    testMatch: ['<rootDir>/tests/**/*.test.{ts,tsx}'],
+    testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
     moduleNameMapper: {
         '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
         '\\.(jpg|jpeg|png|gif|svg|webp)$': '<rootDir>/__mocks__/fileMock.js',
