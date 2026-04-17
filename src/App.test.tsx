@@ -1,28 +1,41 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Navigate, Route, Routes } from 'react-router-dom';
-import HomePage from '../pages/HomePage/HomePage';
-import AboutPage from '../pages/AboutPage/AboutPage';
-import MeAboutPage from '../pages/Admin/Admin';
-import Header from '../components/Header/Header';
-import Footer from '../components/Footer/Footer';
-import { PORTFOLIO_CONFIG } from '../config/portfolio';
-import { ROUTES } from '../routes';
+import HomePage from './pages/HomePage/HomePage';
+import AboutPage from './pages/AboutPage/AboutPage';
+import MeAboutPage from './pages/Admin/Admin';
+import Header from './components/Header/Header';
+import Footer from './components/Footer/Footer';
+import { PORTFOLIO_CONFIG } from './config/portfolio';
+import { ROUTES } from './routes';
+import { ThemeProvider } from './context/ThemeContext';
+import App from './App';
+
+const routerFuture = { v7_relativeSplatPath: true, v7_startTransition: true };
 
 function AppShell({ initialPath }: { initialPath: string }) {
   return (
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Header />
-      <Routes>
-        <Route path={ROUTES.HOME} element={<HomePage />} />
-        <Route path={ROUTES.ABOUT} element={<AboutPage />} />
-        <Route path={ROUTES.ADMIN} element={<MeAboutPage />} />
-        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-      </Routes>
-      <Footer />
-    </MemoryRouter>
+    <ThemeProvider>
+      <MemoryRouter initialEntries={[initialPath]} future={routerFuture}>
+        <Header />
+        <Routes>
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+          <Route path={ROUTES.ABOUT} element={<AboutPage />} />
+          <Route path={ROUTES.ADMIN} element={<MeAboutPage />} />
+          <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+        </Routes>
+        <Footer />
+      </MemoryRouter>
+    </ThemeProvider>
   );
 }
+
+describe('App smoke test', () => {
+  it('mounts without errors with ThemeProvider wrapping everything', () => {
+    render(<App />);
+    expect(document.body).toBeInTheDocument();
+  });
+});
 
 describe('Route /', () => {
   it('renders HomePage content', () => {

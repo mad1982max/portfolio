@@ -23,6 +23,8 @@ export default [
                 document: 'readonly',
                 navigator: 'readonly',
                 console: 'readonly',
+                localStorage: 'readonly',
+                JSX: 'readonly',
             },
         },
         plugins: {
@@ -56,6 +58,8 @@ export default [
                 beforeAll: 'readonly',
                 afterAll: 'readonly',
                 jest: 'readonly',
+                React: 'readonly',
+                localStorage: 'readonly',
             },
         },
     },
