@@ -6,7 +6,7 @@ export default function UploadProgressIndicator({
   progress,
 }: UploadProgressIndicatorProps): JSX.Element {
   return (
-    <div className="flex flex-col gap-1 w-full">
+    <div className="flex flex-col gap-1 w-40">
       <progress
         value={progress}
         max={100}
