@@ -8,6 +8,15 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 export default [
     js.configs.recommended,
     {
+        files: ['vite.config.ts', 'postcss.config.js', 'tailwind.config.js', 'jest.config.js'],
+        languageOptions: {
+            globals: {
+                process: 'readonly',
+                __dirname: 'readonly',
+            },
+        },
+    },
+    {
         files: ['**/*.ts', '**/*.tsx'],
         languageOptions: {
             parser: tsParser,
