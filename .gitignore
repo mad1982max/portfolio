@@ -1,0 +1,6 @@
+node_modules
+.kiro
+.kiro/*/*
+.vscode
+.vscode/*/*
+dist
