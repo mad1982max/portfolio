@@ -57,7 +57,8 @@ describe('Route /admin', () => {
   it('renders MeAboutPage content', () => {
     render(<AppShell initialPath="/admin" />);
     expect(screen.getByRole('heading', { name: /control panel/i })).toBeInTheDocument();
-    expect(screen.getByText(/feature management will be added later/i)).toBeInTheDocument();
+    expect(screen.getByText(/upload resume/i)).toBeInTheDocument();
+    expect(screen.getByText(/upload photo/i)).toBeInTheDocument();
   });
 });
 
