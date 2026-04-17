@@ -41,7 +41,7 @@ describe('Route /', () => {
   it('renders HomePage content', () => {
     render(<AppShell initialPath="/" />);
     expect(screen.getByRole('heading', { name: PORTFOLIO_CONFIG.ownerName })).toBeInTheDocument();
-    expect(screen.getByText(PORTFOLIO_CONFIG.tagline)).toBeInTheDocument();
+    expect(screen.getAllByText(PORTFOLIO_CONFIG.tagline).length).toBeGreaterThan(0);
   });
 });
 

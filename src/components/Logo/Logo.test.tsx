@@ -3,10 +3,10 @@ import Logo from './Logo';
 import { PORTFOLIO_CONFIG } from '../../config/portfolio';
 
 describe('Logo', () => {
-  it('renders img with placeholder src', () => {
+  it('renders img with correct src', () => {
     render(<Logo />);
     const img = screen.getByRole('img');
-    expect(img).toHaveAttribute('src', 'https://placehold.co/40x40');
+    expect(img).toHaveAttribute('src', '/my3d.gif');
   });
 
   it('renders img with alt equal to ownerName', () => {
@@ -15,9 +15,9 @@ describe('Logo', () => {
     expect(img).toHaveAttribute('alt', PORTFOLIO_CONFIG.ownerName);
   });
 
-  it('renders img with correct size and shape classes', () => {
+  it('renders wrapper with correct size and shape classes', () => {
     render(<Logo />);
     const img = screen.getByRole('img');
-    expect(img).toHaveClass('w-10', 'h-10', 'rounded-full');
+    expect(img.parentElement).toHaveClass('w-10', 'h-10', 'rounded-full');
   });
 });
