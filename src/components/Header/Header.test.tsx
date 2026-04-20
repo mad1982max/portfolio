@@ -3,6 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../context/ThemeContext';
 import Header from './Header';
+import { APP_VERSION } from '../../config/appVersion';
 
 function renderHeader(initialPath = '/') {
   return render(
@@ -29,6 +30,11 @@ describe('Header', () => {
   it('renders Logo', () => {
     renderHeader();
     expect(screen.getByRole('img')).toBeInTheDocument();
+  });
+
+  it('renders the current app version next to the logo', () => {
+    renderHeader();
+    expect(screen.getByText(`v${APP_VERSION}`)).toBeInTheDocument();
   });
 
   it('renders Navigation', () => {

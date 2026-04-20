@@ -38,6 +38,7 @@ export default [
                 File: 'readonly',
                 FileList: 'readonly',
                 Blob: 'readonly',
+                __APP_VERSION__: 'readonly',
                 setInterval: 'readonly',
                 clearInterval: 'readonly',
                 setTimeout: 'readonly',
