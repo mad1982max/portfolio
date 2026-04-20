@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -15,6 +15,7 @@ interface ResumeUploaderProps {
 
 export default function ResumeUploader({ onUploadComplete }: ResumeUploaderProps) {
   const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const {
     control,
@@ -39,7 +40,13 @@ export default function ResumeUploader({ onUploadComplete }: ResumeUploaderProps
         size: file.size,
         type: file.type,
         uploadedAt: new Date(),
+        previewUrl: URL.createObjectURL(file),
       };
+
+      setPreviewUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return meta.previewUrl ?? null;
+      });
 
       setUploadState({ status: 'success' });
       onUploadComplete(meta);
@@ -53,6 +60,14 @@ export default function ResumeUploader({ onUploadComplete }: ResumeUploaderProps
     reset();
     setUploadState({ status: 'idle' });
   };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
 
   return (
     <div className="flex flex-col gap-4">

@@ -10,6 +10,17 @@ jest.mock('../../utils/uploadSimulation', () => ({
 const mockedSimulateUpload = simulateUpload as jest.MockedFunction<typeof simulateUpload>;
 const mockOnUploadComplete = jest.fn();
 
+beforeAll(() => {
+  Object.defineProperty(URL, 'createObjectURL', {
+    writable: true,
+    value: jest.fn(() => 'blob:resume-preview'),
+  });
+  Object.defineProperty(URL, 'revokeObjectURL', {
+    writable: true,
+    value: jest.fn(),
+  });
+});
+
 function makeFile(name: string, type: string, size = 1024) {
   return new File(['x'.repeat(size)], name, { type });
 }
@@ -67,7 +78,11 @@ describe('ResumeUploader', () => {
 
     await waitFor(() => {
       expect(mockOnUploadComplete).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'resume.pdf', type: 'application/pdf' })
+        expect.objectContaining({
+          name: 'resume.pdf',
+          type: 'application/pdf',
+          previewUrl: 'blob:resume-preview',
+        })
       );
     });
   });

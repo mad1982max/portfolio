@@ -51,6 +51,7 @@ jest.mock('../../components/ResumeUploader/ResumeUploader', () => ({
           size: 12345,
           type: 'application/pdf',
           uploadedAt: new Date('2024-01-01T00:00:00Z'),
+          previewUrl: 'blob:resume-preview',
         })
       }
     >
@@ -85,6 +86,7 @@ describe('Admin – FileInfoDisplay wiring', () => {
       screen.getByTestId('resume-trigger').click();
     });
     expect(screen.getByText('resume.pdf')).toBeInTheDocument();
+    expect(screen.getByTitle(/resume preview/i)).toBeInTheDocument();
   });
 
   it('renders FileInfoDisplay for photo after onUploadComplete is called', () => {

@@ -3,6 +3,7 @@ export interface UploadedFileMeta {
   size: number;
   type: string;
   uploadedAt: Date;
+  previewUrl?: string;
 }
 
 export type UploadState =
