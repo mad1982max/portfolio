@@ -9,7 +9,7 @@ export default {
         }],
     },
     setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
-    testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}'],
+    testMatch: ['**/src/**/*.test.{ts,tsx}'],
     moduleNameMapper: {
         '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',
         '\\.(jpg|jpeg|png|gif|svg|webp)$': '<rootDir>/__mocks__/fileMock.js',
