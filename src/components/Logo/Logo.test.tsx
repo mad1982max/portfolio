@@ -3,10 +3,10 @@ import Logo from './Logo';
 import { PORTFOLIO_CONFIG } from '../../config/portfolio';
 
 describe('Logo', () => {
-  it('renders img with correct src', () => {
+  it('renders img with the portfolio logo asset', () => {
     render(<Logo />);
     const img = screen.getByRole('img');
-    expect(img).toHaveAttribute('src', '/my3d.gif');
+    expect(img).toHaveAttribute('src', 'test-file-stub');
   });
 
   it('renders img with alt equal to ownerName', () => {
