@@ -1,14 +1,14 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import PhotoUploader from './PhotoUploader';
 import { simulateUpload } from '../../utils/uploadSimulation';
+import { renderWithProviders } from '../../testUtils';
 
 jest.mock('../../utils/uploadSimulation', () => ({
   simulateUpload: jest.fn(() => Promise.resolve()),
 }));
 
 const mockedSimulateUpload = simulateUpload as jest.MockedFunction<typeof simulateUpload>;
-const mockOnUploadComplete = jest.fn();
 
 beforeAll(() => {
   Object.defineProperty(URL, 'createObjectURL', {
@@ -27,28 +27,27 @@ function makeFile(name: string, type: string, size = 1024) {
 
 describe('PhotoUploader', () => {
   beforeEach(() => {
-    mockOnUploadComplete.mockClear();
     mockedSimulateUpload.mockResolvedValue(undefined);
   });
 
   it('renders without crashing and shows the file input', () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     expect(screen.getByLabelText(/photo file/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /upload/i })).toBeInTheDocument();
   });
 
   it('does not show progress indicator initially', () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 
   it('does not show preview initially', () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     expect(screen.queryByAltText(/profile preview/i)).not.toBeInTheDocument();
   });
 
   it('shows validation error for invalid MIME type', async () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     const input = screen.getByLabelText(/photo file/i);
     const file = makeFile('doc.pdf', 'application/pdf');
 
@@ -61,7 +60,7 @@ describe('PhotoUploader', () => {
   });
 
   it('shows validation error for oversized file', async () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     const input = screen.getByLabelText(/photo file/i);
     const file = makeFile('big.jpg', 'image/jpeg', 3 * 1024 * 1024);
 
@@ -73,8 +72,8 @@ describe('PhotoUploader', () => {
     });
   });
 
-  it('calls onUploadComplete and shows preview after successful upload', async () => {
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+  it('stores photo metadata and shows preview after successful upload', async () => {
+    const { store } = renderWithProviders(<PhotoUploader />);
     const input = screen.getByLabelText(/photo file/i);
     const file = makeFile('photo.jpg', 'image/jpeg', 1024);
 
@@ -82,8 +81,12 @@ describe('PhotoUploader', () => {
     fireEvent.click(screen.getByRole('button', { name: /upload/i }));
 
     await waitFor(() => {
-      expect(mockOnUploadComplete).toHaveBeenCalledWith(
-        expect.objectContaining({ name: 'photo.jpg', type: 'image/jpeg' })
+      expect(store.getState().uploads.photo.meta).toEqual(
+        expect.objectContaining({
+          name: 'photo.jpg',
+          type: 'image/jpeg',
+          previewUrl: 'blob:mock-url',
+        })
       );
     });
 
@@ -93,7 +96,7 @@ describe('PhotoUploader', () => {
   it('shows retry button on upload error', async () => {
     mockedSimulateUpload.mockRejectedValueOnce(new Error('Network error'));
 
-    render(<PhotoUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<PhotoUploader />);
     const input = screen.getByLabelText(/photo file/i);
     const file = makeFile('photo.jpg', 'image/jpeg', 1024);
 

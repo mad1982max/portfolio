@@ -1,22 +1,16 @@
-import { useEffect, useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { resumeSchema, ACCEPTED_RESUME_TYPES } from '../../schemas/uploadSchemas';
-import { simulateUpload } from '../../utils/uploadSimulation';
 import UploadProgressIndicator from '../UploadProgressIndicator/UploadProgressIndicator';
-import type { UploadedFileMeta, UploadState } from '../../types/upload';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { resetUploadState, uploadFile } from '../../store/uploadSlice';
 
 type ResumeFormValues = z.infer<typeof resumeSchema>;
 
-interface ResumeUploaderProps {
-  onUploadComplete: (meta: UploadedFileMeta) => void;
-}
-
-export default function ResumeUploader({ onUploadComplete }: ResumeUploaderProps) {
-  const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+export default function ResumeUploader() {
+  const dispatch = useAppDispatch();
+  const uploadState = useAppSelector((state) => state.uploads.resume.uploadState);
   const {
     control,
     handleSubmit,
@@ -27,47 +21,13 @@ export default function ResumeUploader({ onUploadComplete }: ResumeUploaderProps
   });
 
   const onSubmit = async (data: ResumeFormValues) => {
-    const file = data.file;
-    setUploadState({ status: 'uploading', progress: 0 });
-
-    try {
-      await simulateUpload((progress) => {
-        setUploadState({ status: 'uploading', progress });
-      });
-
-      const meta: UploadedFileMeta = {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        uploadedAt: new Date(),
-        previewUrl: URL.createObjectURL(file),
-      };
-
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return meta.previewUrl ?? null;
-      });
-
-      setUploadState({ status: 'success' });
-      onUploadComplete(meta);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Upload failed. Please try again.';
-      setUploadState({ status: 'error', message });
-    }
+    await dispatch(uploadFile({ kind: 'resume', file: data.file }));
   };
 
   const handleRetry = () => {
     reset();
-    setUploadState({ status: 'idle' });
+    dispatch(resetUploadState('resume'));
   };
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
 
   return (
     <div className="flex flex-col gap-4">

@@ -2,7 +2,7 @@ export interface UploadedFileMeta {
   name: string;
   size: number;
   type: string;
-  uploadedAt: Date;
+  uploadedAt: string;
   previewUrl?: string;
 }
 

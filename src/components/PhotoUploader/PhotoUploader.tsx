@@ -1,22 +1,16 @@
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { photoSchema, ACCEPTED_IMAGE_TYPES } from '../../schemas/uploadSchemas';
-import { simulateUpload } from '../../utils/uploadSimulation';
 import UploadProgressIndicator from '../UploadProgressIndicator/UploadProgressIndicator';
-import type { UploadedFileMeta, UploadState } from '../../types/upload';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { resetUploadState, uploadFile } from '../../store/uploadSlice';
 
 type PhotoFormValues = z.infer<typeof photoSchema>;
 
-interface PhotoUploaderProps {
-  onUploadComplete: (meta: UploadedFileMeta) => void;
-}
-
-export default function PhotoUploader({ onUploadComplete }: PhotoUploaderProps) {
-  const [uploadState, setUploadState] = useState<UploadState>({ status: 'idle' });
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-
+export default function PhotoUploader() {
+  const dispatch = useAppDispatch();
+  const { uploadState, meta } = useAppSelector((state) => state.uploads.photo);
   const {
     control,
     handleSubmit,
@@ -27,38 +21,12 @@ export default function PhotoUploader({ onUploadComplete }: PhotoUploaderProps) 
   });
 
   const onSubmit = async (data: PhotoFormValues) => {
-    const file = data.file;
-    setUploadState({ status: 'uploading', progress: 0 });
-
-    try {
-      await simulateUpload((progress) => {
-        setUploadState({ status: 'uploading', progress });
-      });
-
-      const meta: UploadedFileMeta = {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-        uploadedAt: new Date(),
-      };
-
-      // revoke previous preview URL before creating a new one
-      setPreviewUrl((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return URL.createObjectURL(file);
-      });
-
-      setUploadState({ status: 'success' });
-      onUploadComplete(meta);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Upload failed. Please try again.';
-      setUploadState({ status: 'error', message });
-    }
+    await dispatch(uploadFile({ kind: 'photo', file: data.file }));
   };
 
   const handleRetry = () => {
     reset();
-    setUploadState({ status: 'idle' });
+    dispatch(resetUploadState('photo'));
   };
 
   return (
@@ -121,11 +89,11 @@ export default function PhotoUploader({ onUploadComplete }: PhotoUploaderProps) 
         </button>
       </form>
 
-      {previewUrl && (
+      {meta?.previewUrl && (
         <div className="mt-2">
           <p className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">Preview</p>
           <img
-            src={previewUrl}
+            src={meta.previewUrl}
             alt="Uploaded profile preview"
             className="h-40 w-40 rounded-lg object-cover shadow"
           />

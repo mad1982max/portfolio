@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import ResumeUploader from '../../components/ResumeUploader/ResumeUploader';
 import PhotoUploader from '../../components/PhotoUploader/PhotoUploader';
 import FileInfoDisplay from '../../components/FileInfoDisplay/FileInfoDisplay';
 import type { UploadedFileMeta } from '../../types/upload';
+import { useAppSelector } from '../../store/hooks';
 
 function canPreviewResume(meta: UploadedFileMeta) {
   return meta.type === 'application/pdf' || meta.type === 'text/plain';
 }
 
 export default function Admin() {
-  const [resumeMeta, setResumeMeta] = useState<UploadedFileMeta | null>(null);
-  const [photoMeta, setPhotoMeta] = useState<UploadedFileMeta | null>(null);
+  const resumeMeta = useAppSelector((state) => state.uploads.resume.meta);
+  const photoMeta = useAppSelector((state) => state.uploads.photo.meta);
 
   return (
     <main className="flex flex-col gap-8">
@@ -19,7 +19,7 @@ export default function Admin() {
       <section className="flex flex-col gap-10">
         <div className="flex items-start gap-6">
           <div className="flex-1">
-            <ResumeUploader onUploadComplete={setResumeMeta} />
+            <ResumeUploader />
           </div>
           {resumeMeta && (
             <div className="flex-1">
@@ -57,7 +57,7 @@ export default function Admin() {
 
         <div className="flex items-start gap-6">
           <div className="flex-1">
-            <PhotoUploader onUploadComplete={setPhotoMeta} />
+            <PhotoUploader />
           </div>
           {photoMeta && (
             <div className="flex-1">

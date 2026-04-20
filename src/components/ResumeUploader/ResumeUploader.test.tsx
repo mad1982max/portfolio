@@ -1,14 +1,14 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
 import ResumeUploader from './ResumeUploader';
 import { simulateUpload } from '../../utils/uploadSimulation';
+import { renderWithProviders } from '../../testUtils';
 
 jest.mock('../../utils/uploadSimulation', () => ({
   simulateUpload: jest.fn(() => Promise.resolve()),
 }));
 
 const mockedSimulateUpload = simulateUpload as jest.MockedFunction<typeof simulateUpload>;
-const mockOnUploadComplete = jest.fn();
 
 beforeAll(() => {
   Object.defineProperty(URL, 'createObjectURL', {
@@ -27,23 +27,22 @@ function makeFile(name: string, type: string, size = 1024) {
 
 describe('ResumeUploader', () => {
   beforeEach(() => {
-    mockOnUploadComplete.mockClear();
     mockedSimulateUpload.mockResolvedValue(undefined);
   });
 
   it('renders without crashing and shows the file input', () => {
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<ResumeUploader />);
     expect(screen.getByLabelText(/resume file/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /upload/i })).toBeInTheDocument();
   });
 
   it('does not show progress indicator initially', () => {
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<ResumeUploader />);
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
   });
 
   it('shows validation error for invalid MIME type', async () => {
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<ResumeUploader />);
     const input = screen.getByLabelText(/resume file/i);
     const file = makeFile('test.exe', 'application/x-msdownload');
 
@@ -56,7 +55,7 @@ describe('ResumeUploader', () => {
   });
 
   it('shows validation error for oversized file', async () => {
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<ResumeUploader />);
     const input = screen.getByLabelText(/resume file/i);
     const file = makeFile('big.pdf', 'application/pdf', 6 * 1024 * 1024);
 
@@ -68,8 +67,8 @@ describe('ResumeUploader', () => {
     });
   });
 
-  it('calls onUploadComplete with metadata after successful upload', async () => {
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+  it('stores metadata after successful upload', async () => {
+    const { store } = renderWithProviders(<ResumeUploader />);
     const input = screen.getByLabelText(/resume file/i);
     const file = makeFile('resume.pdf', 'application/pdf', 1024);
 
@@ -77,7 +76,7 @@ describe('ResumeUploader', () => {
     fireEvent.click(screen.getByRole('button', { name: /upload/i }));
 
     await waitFor(() => {
-      expect(mockOnUploadComplete).toHaveBeenCalledWith(
+      expect(store.getState().uploads.resume.meta).toEqual(
         expect.objectContaining({
           name: 'resume.pdf',
           type: 'application/pdf',
@@ -90,7 +89,7 @@ describe('ResumeUploader', () => {
   it('shows retry button on upload error', async () => {
     mockedSimulateUpload.mockRejectedValueOnce(new Error('Network error'));
 
-    render(<ResumeUploader onUploadComplete={mockOnUploadComplete} />);
+    renderWithProviders(<ResumeUploader />);
     const input = screen.getByLabelText(/resume file/i);
     const file = makeFile('resume.pdf', 'application/pdf', 1024);
 
